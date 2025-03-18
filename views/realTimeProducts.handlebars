@@ -1,4 +1,4 @@
-<h1>Productos en Tiempo Real</h1>
+<h1>{{title}}</h1>
 
 <form id="productForm">
     <input type="text" id="name" placeholder="Nombre" required>
@@ -8,6 +8,7 @@
 
 <ul id="productList"></ul>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
     const socket = io();
     const productList = document.getElementById("productList");
@@ -19,6 +20,14 @@
         products.forEach(product => {
             const li = document.createElement("li");
             li.innerText = `${product.name} - $${product.price}`;
+            li.dataset.id = product.id;
+            
+            // Botón de eliminar
+            const deleteBtn = document.createElement("button");
+            deleteBtn.innerText = "Eliminar";
+            deleteBtn.onclick = () => socket.emit("deleteProduct", product.id);
+
+            li.appendChild(deleteBtn);
             productList.appendChild(li);
         });
     });
