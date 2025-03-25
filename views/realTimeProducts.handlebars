@@ -3,6 +3,9 @@
 <form id="productForm">
     <input type="text" id="name" placeholder="Nombre" required>
     <input type="number" id="price" placeholder="Precio" required>
+    <input type="text" id="description" placeholder="Descripción" required>
+    <input type="number" id="stock" placeholder="Stock" required>
+    <input type="text" id="thumbnails" placeholder="Imagen (URL)" required>
     <button type="submit">Agregar Producto</button>
 </form>
 
@@ -19,8 +22,12 @@
         productList.innerHTML = "";
         products.forEach(product => {
             const li = document.createElement("li");
-            li.innerText = `${product.name} - $${product.price}`;
-            li.dataset.id = product.id;
+            li.innerHTML = `
+                <strong>${product.name}</strong> - $${product.price} <br>
+                <em>${product.description}</em> <br>
+                Stock: ${product.stock} <br>
+                <img src="${product.thumbnails}" width="50"> <br>
+            `;
             
             // Botón de eliminar
             const deleteBtn = document.createElement("button");
@@ -37,7 +44,11 @@
         event.preventDefault();
         const name = document.getElementById("name").value;
         const price = document.getElementById("price").value;
-        socket.emit("newProduct", { name, price });
+        const description = document.getElementById("description").value;
+        const stock = document.getElementById("stock").value;
+        const thumbnails = document.getElementById("thumbnails").value;
+        
+        socket.emit("newProduct", { name, price, description, stock, thumbnails });
         productForm.reset();
     });
 </script>
