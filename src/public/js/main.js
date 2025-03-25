@@ -12,11 +12,17 @@ socket.on("updateProducts", (products) => {
                 <em>${product.description}</em> <br>
                 Stock: ${product.stock} <br>
                 <img src="${product.thumbnails}" width="50"> <br>
+                <button onclick="deleteProduct('${product.id}')">Eliminar</button>
             `;
             productList.appendChild(li);
         });
     }
 });
+
+// Función para enviar solicitud de eliminación al servidor
+function deleteProduct(productId) {
+    socket.emit("deleteProduct", productId);
+}
 
 // Capturar el envío del formulario y enviar producto al servidor
 document.getElementById("productForm").addEventListener("submit", (event) => {
