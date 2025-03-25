@@ -1,26 +1,24 @@
-let products = []; // Simulación de base de datos en memoria
+import { getProducts, addProduct, deleteProduct } from "../data/products.js";
 
 export function configureSockets(io) {
-    io.on("connection", (socket) => {
-        console.log("Nuevo usuario conectado");
+  io.on("connection", (socket) => {
+    console.log("🟢 Usuario conectado por WebSocket");
 
-        // Enviar la lista de productos actual al cliente
-        socket.emit("updateProducts", products);
+    // Enviar productos actuales
+    socket.emit("updateProducts", getProducts());
 
-        // Escuchar cuando se agrega un nuevo producto
-        socket.on("newProduct", (product) => {
-            if (!product.id) {
-                product.id = Date.now().toString(); // ✅ Asegurar que el ID sea string
-            }
-            products.push(product);
-            io.emit("updateProducts", products); // Notificar a todos los clientes
-        });
-
-        // Escuchar cuando se elimina un producto
-        socket.on("deleteProduct", (id) => {
-            console.log("Solicitud de eliminación recibida. ID:", id); // ✅ Verificar si el servidor recibe la solicitud
-            products = products.filter((product) => product.id !== id); // ✅ Comparación correcta
-            io.emit("updateProducts", products); // Enviar lista actualizada
-        });
+    // Escuchar nuevo producto
+    socket.on("newProduct", (product) => {
+      const newProd = addProduct(product);
+      io.emit("updateProducts", getProducts());
     });
+
+    // Escuchar eliminación
+    socket.on("deleteProduct", (id) => {
+      const deleted = deleteProduct(id);
+      if (deleted) {
+        io.emit("updateProducts", getProducts());
+      }
+    });
+  });
 }
