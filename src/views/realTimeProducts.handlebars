@@ -1,11 +1,11 @@
 <h1>{{title}}</h1>
 
 <form id="productForm">
-    <input type="text" id="name" placeholder="Nombre" required>
-    <input type="number" id="price" placeholder="Precio" required>
-    <input type="text" id="description" placeholder="Descripción" required>
-    <input type="number" id="stock" placeholder="Stock" required>
-    <input type="text" id="thumbnails" placeholder="Imagen (URL)" required>
+    <input type="text" id="name" name="name" placeholder="Nombre" required autocomplete="off">
+    <input type="number" id="price" name="price" placeholder="Precio" required autocomplete="off">
+    <input type="text" id="description" name="description" placeholder="Descripción" required autocomplete="off">
+    <input type="number" id="stock" name="stock" placeholder="Stock" required autocomplete="off">
+    <input type="text" id="thumbnails" name="thumbnails" placeholder="Imagen (URL)" required autocomplete="off">
     <button type="submit">Agregar Producto</button>
 </form>
 
