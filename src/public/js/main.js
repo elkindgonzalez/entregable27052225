@@ -12,7 +12,7 @@ socket.on("updateProducts", (products) => {
                 <em>${product.description}</em> <br>
                 Stock: ${product.stock} <br>
                 <img src="${product.thumbnails}" width="50"> <br>
-                <button onclick="deleteProduct('${product.id}')">Eliminar</button>
+                <button onclick="deleteProduct('${product.id}')">❌ Eliminar</button>
             `;
             productList.appendChild(li);
         });
@@ -21,6 +21,7 @@ socket.on("updateProducts", (products) => {
 
 // Función para enviar solicitud de eliminación al servidor
 function deleteProduct(productId) {
+    console.log("Intentando eliminar el producto con ID:", productId); // 🔹 Verificar si la función se ejecuta
     socket.emit("deleteProduct", productId);
 }
 
@@ -39,3 +40,5 @@ document.getElementById("productForm").addEventListener("submit", (event) => {
     // Limpiar formulario
     event.target.reset();
 });
+
+window.deleteProduct = deleteProduct;

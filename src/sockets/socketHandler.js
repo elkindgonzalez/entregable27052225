@@ -10,7 +10,7 @@ export function configureSockets(io) {
         // Escuchar cuando se agrega un nuevo producto
         socket.on("newProduct", (product) => {
             if (!product.id) {
-                product.id = Date.now(); // Asignar un ID único
+                product.id = Date.now().toString(); // ✅ Asegurar que el ID sea string
             }
             products.push(product);
             io.emit("updateProducts", products); // Notificar a todos los clientes
@@ -18,8 +18,9 @@ export function configureSockets(io) {
 
         // Escuchar cuando se elimina un producto
         socket.on("deleteProduct", (id) => {
-            products = products.filter((product) => product.id !== id);
-            io.emit("updateProducts", products);
+            console.log("Solicitud de eliminación recibida. ID:", id); // ✅ Verificar si el servidor recibe la solicitud
+            products = products.filter((product) => product.id !== id); // ✅ Comparación correcta
+            io.emit("updateProducts", products); // Enviar lista actualizada
         });
     });
 }
