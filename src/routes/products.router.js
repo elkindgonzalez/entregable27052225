@@ -3,7 +3,7 @@ import Product from '../models/Product.js';
 
 const router = Router();
 
-// ✅ Obtener todos los productos
+// Obtener todos los productos
 router.get('/', async (req, res) => {
   try {
     const products = await Product.find();
@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ Agregar nuevo producto
+// Agregar nuevo producto
 router.post('/', async (req, res) => {
   const { name, price, description, stock, thumbnails } = req.body;
 
@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ Eliminar producto por ID
+// Eliminar producto por ID
 router.delete('/:id', async (req, res) => {
   try {
     const result = await Product.findByIdAndDelete(req.params.id);
