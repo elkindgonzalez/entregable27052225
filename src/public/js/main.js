@@ -1,4 +1,5 @@
-const socket = io();
+const socket = window.socket || io();
+window.socket = socket;
 
 // Escuchar productos actualizados y mostrarlos en la lista
 socket.on("updateProducts", (products) => {
@@ -12,7 +13,8 @@ socket.on("updateProducts", (products) => {
                 <em>${product.description}</em> <br>
                 Stock: ${product.stock} <br>
                 <img src="${product.thumbnails}" width="50"> <br>
-                <button onclick="deleteProduct('${product.id}')">❌ Eliminar</button>
+                <button onclick="deleteProduct('${product._id}')">❌ Eliminar</button>
+
             `;
             productList.appendChild(li);
         });

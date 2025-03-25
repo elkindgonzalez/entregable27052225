@@ -1,8 +1,15 @@
+// src/index.js
 import express from "express";
 import { engine } from "express-handlebars";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+import connectDB from './config/db.js';
+connectDB();
 
 import viewsRouter from "./routes/viewsRouter.js";
 import productsRouter from "./routes/products.router.js";
@@ -24,12 +31,12 @@ const io = new Server(server);
 // Configuración de Handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "views")); // 👈 volvemos a la forma que te funcionaba
+app.set("views", path.join(__dirname, "views"));
 
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public"))); // 👈 también ruta que funcionaba
+app.use(express.static(path.join(__dirname, "public")));
 
 // Rutas
 app.use("/", viewsRouter);
