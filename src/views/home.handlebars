@@ -1,7 +1,21 @@
-<h1>{{title}}</h1>
-<ul id="productList">
-    {{#each products}}
-        <li>{{this.name}} - ${{this.price}}</li>
-    {{/each}}
-</ul>
-<a href="/realtimeproducts">Ir a la vista en tiempo real</a>
+<h1>🧭 Bienvenido a la Tienda WebSocket Mongo</h1>
+
+<div style="display: flex; flex-direction: column; gap: 15px; max-width: 300px; margin-top: 20px;">
+  <a href="/products">
+    <button style="width: 100%; padding: 10px; font-size: 16px;">🛍️ Ver Productos Paginados</button>
+  </a>
+
+  <a href="/realtimeproducts">
+    <button style="width: 100%; padding: 10px; font-size: 16px;">⚡ Productos en Tiempo Real</button>
+  </a>
+
+  {{#if defaultCartId}}
+    <a href="/carts/{{defaultCartId}}">
+      <button style="width: 100%; padding: 10px; font-size: 16px;">🛒 Ver mi Carrito</button>
+    </a>
+  {{else}}
+    <button disabled style="width: 100%; padding: 10px; font-size: 16px; background-color: #ccc;">
+      ⚠️ No hay carrito disponible
+    </button>
+  {{/if}}
+</div>

@@ -1,0 +1,147 @@
+<h1 style="margin-bottom: 20px;">{{title}}</h1>
+
+<!-- 🧪 ID del carrito para agregar productos -->
+<input type="hidden" id="defaultCartId" value="67f036aa831ad74bf15dd51b">
+
+<!-- 🔗 Botón para ver el carrito -->
+<a href="/carts/67f036aa831ad74bf15dd51b">
+  <button style="margin-bottom: 20px;">🛍️ Ver carrito de compras</button>
+</a>
+
+
+<!-- 📝 Formulario para crear o editar productos -->
+<form id="productForm" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px;">
+  <input type="hidden" id="productId">
+
+  <input type="text" id="name" placeholder="Nombre" required>
+  <input type="number" id="price" placeholder="Precio" required>
+  <input type="text" id="description" placeholder="Descripción" required>
+  <input type="number" id="stock" placeholder="Stock" required>
+  <input type="text" id="thumbnails" placeholder="URL imagen" required>
+
+  <button type="submit" style="padding: 10px;">💾 Guardar producto</button>
+</form>
+
+<hr>
+
+<!-- 📋 Tabla de productos -->
+<div style="overflow-x: auto; margin-top: 30px;">
+  <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse; min-width: 800px;">
+    <thead style="background-color: #f0f0f0;">
+      <tr>
+        <th>Imagen</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Descripción</th>
+        <th>Stock</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each products}}
+        <tr>
+          <td><img src="{{this.thumbnails.[0]}}" width="60" alt="img"></td>
+          <td>{{this.name}}</td>
+          <td>$ {{this.price}}</td>
+          <td>{{this.description}}</td>
+          <td>{{this.stock}}</td>
+          <td>
+            <button onclick="addToCart('{{this._id}}')">🛒</button>
+            <button onclick="loadProductToEdit(`{{this._id}}`, `{{this.name}}`, `{{this.price}}`, `{{this.description}}`, `{{this.stock}}`, `{{this.thumbnails.[0]}}`)">✏️</button>
+            <button onclick="deleteProduct('{{this._id}}')">❌</button>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
+<!-- 🔽 Paginación -->
+<div style="margin-top: 30px; display: flex; align-items: center; gap: 15px;">
+  {{#if hasPrevPage}}
+    <a href="{{prevLink}}">
+      <button>⬅️ Página anterior</button>
+    </a>
+  {{/if}}
+
+  <span>Página {{page}} de {{totalPages}}</span>
+
+  {{#if hasNextPage}}
+    <a href="{{nextLink}}">
+      <button>Página siguiente ➡️</button>
+    </a>
+  {{/if}}
+</div>
+
+<!-- 🧠 Scripts -->
+<script>
+  const form = document.getElementById('productForm');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById('productId').value;
+    const name = document.getElementById('name').value;
+    const price = document.getElementById('price').value;
+    const description = document.getElementById('description').value;
+    const stock = document.getElementById('stock').value;
+    const thumbnails = document.getElementById('thumbnails').value;
+
+    const product = { name, price, description, stock, thumbnails: [thumbnails] };
+    const url = id ? `/api/products/${id}` : '/api/products';
+    const method = id ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product)
+    });
+
+    if (response.ok) {
+      alert(id ? "✅ Producto actualizado" : "✅ Producto creado");
+      location.reload();
+    } else {
+      alert("❌ Error en la operación");
+    }
+  });
+
+  function loadProductToEdit(id, name, price, description, stock, thumbnail) {
+    document.getElementById('productId').value = id;
+    document.getElementById('name').value = name;
+    document.getElementById('price').value = price;
+    document.getElementById('description').value = description;
+    document.getElementById('stock').value = stock;
+    document.getElementById('thumbnails').value = thumbnail;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function deleteProduct(id) {
+    if (confirm("¿Eliminar este producto?")) {
+      fetch(`/api/products/${id}`, { method: 'DELETE' })
+        .then(res => res.ok ? location.reload() : alert("❌ No se pudo eliminar"));
+    }
+  }
+
+  function addToCart(productId) {
+    const cartId = document.getElementById('defaultCartId').value;
+    if (!cartId) {
+      alert("⚠️ No hay carrito disponible.");
+      return;
+    }
+
+    fetch(`/api/carts/${cartId}/products/${productId}`, {
+      method: 'POST',
+    })
+    .then(res => {
+      if (res.ok) {
+        alert("✅ Producto agregado al carrito");
+      } else {
+        alert("❌ No se pudo agregar al carrito");
+      }
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      alert("❌ Error al conectar con el servidor");
+    });
+  }
+</script>
