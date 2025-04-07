@@ -3,7 +3,7 @@ import Product from '../models/Product.js';
 
 const router = Router();
 
-// GET /api/products con paginación, filtros y ordenamiento
+// 📄 GET /api/products - Listado con paginación, filtros, ordenamiento
 router.get('/', async (req, res) => {
   try {
     const { limit = 10, page = 1, sort, query } = req.query;
@@ -17,9 +17,8 @@ router.get('/', async (req, res) => {
     const filter = query
       ? {
           $or: [
-            { category: query },
-            { name: new RegExp(query, 'i') },
-            { availability: query }
+            { category: { $regex: query, $options: 'i' } },
+            { status: query === 'true' }
           ]
         }
       : {};
@@ -47,31 +46,88 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 🆕 POST /api/products - Agregar nuevo producto
-router.post('/', async (req, res) => {
-  const { name, price, description, stock, thumbnails } = req.body;
-
+// 🔎 GET /api/products/:pid - Obtener producto por ID
+router.get('/:pid', async (req, res) => {
   try {
-    const newProduct = new Product({ name, price, description, stock, thumbnails });
-    const savedProduct = await newProduct.save();
-    res.status(201).json(savedProduct);
+    const product = await Product.findById(req.params.pid);
+    if (!product) {
+      return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
+    }
+    res.json({ status: 'success', product });
   } catch (error) {
-    console.error(' Error al crear producto:', error);
-    res.status(400).json({ error: 'Error al crear producto' });
+    console.error('❌ Error al obtener producto:', error);
+    res.status(500).json({ status: 'error', message: 'Error al obtener producto' });
   }
 });
 
-//  DELETE /api/products/:id - Eliminar producto por ID
+// 🆕 POST /api/products - Crear producto
+router.post('/', async (req, res) => {
+  const {
+    title,
+    description,
+    code,
+    price,
+    status = true,
+    stock,
+    category,
+    thumbnails = []
+  } = req.body;
+
+  try {
+    const newProduct = new Product({
+      title,
+      description,
+      code,
+      price,
+      status,
+      stock,
+      category,
+      thumbnails
+    });
+
+    const savedProduct = await newProduct.save();
+    res.status(201).json({ status: 'success', product: savedProduct });
+  } catch (error) {
+    console.error('❌ Error al crear producto:', error);
+    res.status(400).json({ status: 'error', message: error.message });
+  }
+});
+
+// 🔁 PUT /api/products/:pid - Actualizar producto (sin modificar _id)
+router.put('/:pid', async (req, res) => {
+  const { pid } = req.params;
+  const updateData = { ...req.body };
+
+  if (updateData._id) delete updateData._id;
+
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(pid, updateData, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!updatedProduct) {
+      return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
+    }
+
+    res.json({ status: 'success', product: updatedProduct });
+  } catch (error) {
+    console.error('❌ Error al actualizar producto:', error);
+    res.status(400).json({ status: 'error', message: error.message });
+  }
+});
+
+// 🗑️ DELETE /api/products/:id - Eliminar producto
 router.delete('/:id', async (req, res) => {
   try {
     const result = await Product.findByIdAndDelete(req.params.id);
     if (!result) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
+      return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
     }
     res.json({ message: 'Producto eliminado correctamente' });
   } catch (error) {
     console.error('❌ Error al eliminar producto:', error);
-    res.status(500).json({ error: 'Error al eliminar producto' });
+    res.status(500).json({ status: 'error', message: 'Error al eliminar producto' });
   }
 });
 

@@ -1,13 +1,14 @@
+
 import { Router } from "express";
 import Product from "../models/Product.js";
 import Cart from "../models/Cart.js";
 
 const router = Router();
 
-// 🏠 Página principal con acceso a productos y carrito
+// 🏠 Página principal
 router.get("/", async (req, res) => {
   try {
-    const cart = await Cart.findOne().lean(); // buscamos el primer carrito
+    const cart = await Cart.findOne().lean();
     const defaultCartId = cart?._id || null;
 
     res.render("home", {
@@ -23,7 +24,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ⚡ Vista en tiempo real
+// ⚡ Vista en tiempo real de productos (con WebSocket)
 router.get("/realtimeproducts", (req, res) => {
   res.render("realTimeProducts", { title: "Productos en Tiempo Real" });
 });
@@ -43,14 +44,17 @@ router.get("/products", async (req, res) => {
     const filter = query
       ? {
           $or: [
-            { category: query },
-            { name: new RegExp(query, 'i') },
-            { availability: query }
+            { category: { $regex: query, $options: 'i' } },
+            { title: { $regex: query, $options: 'i' } },
+            { status: query === 'true' }
           ]
         }
       : {};
 
-    const result = await Product.paginate(filter, options);
+    const [result, cart] = await Promise.all([
+      Product.paginate(filter, options),
+      Cart.findOne().lean()
+    ]);
 
     const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}/products`;
     const buildLink = (p) => `${baseUrl}?page=${p}&limit=${limit}${sort ? `&sort=${sort}` : ''}${query ? `&query=${query}` : ''}`;
@@ -63,7 +67,8 @@ router.get("/products", async (req, res) => {
       hasPrevPage: result.hasPrevPage,
       hasNextPage: result.hasNextPage,
       prevLink: result.hasPrevPage ? buildLink(result.prevPage) : null,
-      nextLink: result.hasNextPage ? buildLink(result.nextPage) : null
+      nextLink: result.hasNextPage ? buildLink(result.nextPage) : null,
+      defaultCartId: cart?._id || null
     });
   } catch (error) {
     console.error("❌ Error al cargar productos:", error);
@@ -71,7 +76,7 @@ router.get("/products", async (req, res) => {
   }
 });
 
-// 🛒 Vista de un carrito por ID (poblado)
+// 🛒 Vista de carrito poblado
 router.get("/carts/:cid", async (req, res) => {
   try {
     const cart = await Cart.findById(req.params.cid).populate("products.product").lean();
