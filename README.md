@@ -1,124 +1,204 @@
-🛍️ Ecommerce-Auth API · WebSockets • Handlebars • MongoDB • JWT
-Aplicación full-stack construida con Node.js + Express que integra:
+API Backend de Ecommerce con Node.js, Express, MongoDB, Handlebars y Socket.IO
 
-Persistencia en MongoDB Atlas (Mongoose)
+Proyecto backend con Node.js, Express, MongoDB, Handlebars y Socket.IO para la gestión de usuarios y productos en tiempo real.
 
-Vistas dinámicas con Express-Handlebars
+Tabla de contenidos
 
-Actualizaciones en tiempo real mediante Socket.IO
+Descripción
 
-CRUD de usuarios con contraseñas cifradas (bcryptjs)
+Tecnologías
 
-Autenticación y autorización con Passport (Local + JWT)
+Instalación
 
-CRUD de productos y carritos con paginación
+Configuración
 
-🚀 Tecnologías utilizadas
-Ámbito	Paquetes / Herramientas
-Servidor	express · dotenv · nodemon
-Persistencia	mongoose · mongoose-paginate-v2
-Seguridad	passport · passport-local · passport-jwt · bcryptjs · jsonwebtoken
-Tiempo real	socket.io
-Plantillas	express-handlebars
+Scripts disponibles
 
-📁 Estructura del proyecto
-bash
-Copiar
-Editar
-src/
-├─ config/          # Conexión MongoDB + configuración Passport
-├─ controllers/     # Lógica de negocio (users, sessions, products, carts)
-├─ dao/
-│  └─ models/       # Esquemas Mongoose (User, Product, Cart)
-├─ routes/
-│  ├─ api/          # Endpoints REST (/products /carts /users /sessions)
-│  └─ views/        # Rutas para vistas Handlebars
-├─ sockets/         # WebSocket handlers
-├─ utils/           # Helpers hash / compare password
-├─ views/           # Plantillas .handlebars
-└─ index.js         # Servidor HTTP + WebSocket
-📦 Instalación
-bash
-Copiar
-Editar
-git clone https://github.com/elkindgonzalez/entregable27052225.git
+Estructura del proyecto
+
+Endpoints
+
+WebSockets
+
+Funcionalidades implementadas
+
+Mejoras sugeridas
+
+Contribuciones
+
+Licencia
+
+Descripción
+
+Este proyecto implementa un servidor backend que proporciona:
+
+Autenticación y autorización de usuarios con Passport (Local + JWT).
+
+CRUD completo de usuarios con roles y permisos.
+
+Validaciones de entrada con Joi.
+
+Persistencia en MongoDB usando Mongoose.
+
+Comunicación en tiempo real de productos con Socket.IO.
+
+Renderizado de vistas con Handlebars (opcional para front-end).
+
+Tecnologías
+
+Node.js
+
+Express
+
+MongoDB & Mongoose
+
+Passport.js (Local, JWT)
+
+Bcrypt
+
+Joi
+
+Socket.IO
+
+Handlebars
+
+Nodemon
+
+Instalación
+
+Clonar el repositorio:
+
+git clone <repo-url>
 cd entregable27052225
+
+Instalar dependencias:
+
 npm install
-Crear un archivo .env con:
 
-ini
-Copiar
-Editar
+Configuración
+
+Crear un archivo .env en la raíz con las siguientes variables:
+
+MONGO_URI=<tu_uri_mongodb>
+JWT_SECRET=<tu_secreto_jwt>
 PORT=8080
-MONGO_URI=mongodb+srv://<usuario>:<contraseña>@cluster.mongodb.net/ecommerce
-JWT_SECRET=clave_ultra_secreta
-▶️ Ejecución
-bash
-Copiar
-Editar
-npm run dev
-Servidor en http://localhost:8080
 
-🔐 Autenticación y autorización
-Endpoint	Método	Descripción	Acceso
-/api/users	POST	Registro de usuario (password hash)	Público
-/api/sessions/login	POST	Login (Passport Local) → devuelve JWT	Público
-/api/sessions/current	GET	Datos del usuario autenticado (JWT)	Header Authorization: Bearer <token>
+Ajustar valores según tu entorno.
 
-El JWT incluye sub (ID) y role; expira en 2 h.
+Scripts disponibles
 
-🔌 Endpoints REST (resumen)
-Productos /api/products
-GET / • GET /:pid • POST / • PUT /:pid • DELETE /:pid
+En el package.json encontrarás:
 
-Carritos /api/carts
-POST / • GET /:cid • PUT /:cid • DELETE /:cid
-POST /:cid/products/:pid • PUT /:cid/products/:pid • DELETE /:cid/products/:pid
+npm run dev – Inicia el servidor en modo desarrollo con Nodemon.
 
-Usuarios /api/users (rol admin)
-GET / • GET /:uid • PUT /:uid • DELETE /:uid
+npm start – Inicia el servidor en modo producción.
 
-🌐 Vistas Handlebars
-Ruta	Descripción
-/products	Lista paginada con botón «Agregar al carrito»
-/carts/:cid	Detalle de carrito con productos poblados
-/realtimeproducts	Alta/baja de productos en tiempo real (WebSocket)
+npm test – Ejecuta tests con Jest y Supertest (si se implementa).
 
-📡 WebSockets en acción
-Vista /realtimeproducts con formulario para agregar y eliminar productos.
+Estructura del proyecto
 
-Las actualizaciones se transmiten en tiempo real a todos los clientes mediante Socket.IO.
+src/
+├── config/       # Configuraciones (e.g., logger)
+├── controllers/  # Lógica de controladores
+├── dao/          # Data access objects y modelos Mongoose
+├── middlewares/  # Middlewares (auth, validation, errors)
+├── routes/       # Definición de rutas
+├── services/     # Lógica de negocio adicional
+├── utils/        # Utilidades y helpers
+└── index.js      # Punto de entrada
 
-🧪 Prueba rápida
-bash
-Copiar
-Editar
-# 1 – Registrar usuario
-curl -X POST http://localhost:8080/api/users \
- -H 'Content-Type: application/json' \
- -d '{"first_name":"Ana","last_name":"Lopez","email":"ana@test.com","age":30,"password":"1234"}'
+Endpoints
 
-# 2 – Login
-TOKEN=$(curl -s -X POST http://localhost:8080/api/sessions/login \
- -H 'Content-Type: application/json' \
- -d '{"email":"ana@test.com","password":"1234"}' | jq -r .token)
+Autenticación
 
-# 3 – Ruta protegida
-curl http://localhost:8080/api/sessions/current \
- -H "Authorization: Bearer $TOKEN"
-✅ Estado del proyecto
-CRUD de productos y carritos ✔️
+POST /api/users – Registro de usuario (público). Validaciones aplicadas.
 
-CRUD de usuarios con contraseñas cifradas ✔️
+POST /api/sessions/login – Login: recibe email y password, devuelve JWT.
 
-Passport Local + JWT ✔️
+GET /api/sessions/current – Obtiene info del usuario autenticado (JWT).
 
-Middleware de roles ✔️
+Usuarios (admin)
 
-WebSockets y vistas activas ✔️
+GET /api/users – Listar todos los usuarios.
 
-Listo para entrega académica final ✔️
+GET /api/users/:uid – Obtener usuario por ID.
 
-✍️ Autor
-Elkin González
-https://github.com/elkindgonzalez/entregable27052225
+PUT /api/users/:uid – Actualizar usuario.
+
+DELETE /api/users/:uid – Eliminar usuario.
+
+WebSockets
+
+Conexión en cliente: io.connect('<server>').
+
+Eventos disponibles:
+
+addProduct: envía datos para agregar nuevo producto.
+
+updateProduct: envía cambios de producto existente.
+
+deleteProduct: envía ID para eliminar producto.
+
+productList: el servidor emite lista actualizada a todos.
+
+Funcionalidades implementadas
+
+✔️ Modelo User con campos: first_name, last_name, email (único), age, password (hash), cart (ref), role (user por defecto).
+
+✔️ Encriptación de contraseñas con bcrypt.
+
+✔️ Passport Local y JWT para autenticación.
+
+✔️ Rutas protegidas con middlewares authJWT y authorize('admin').
+
+✔️ CRUD completo de usuarios.
+
+✔️ Validaciones de entrada usando Joi.
+
+✔️ WebSockets para productos en tiempo real.
+
+Mejoras sugeridas
+
+Tests automáticos
+
+Configurar Jest + Supertest con MongoDB en memoria.
+
+Manejo centralizado de errores
+
+Middleware global y logging con Winston o Pino.
+
+Optimización de MongoDB
+
+Índices, paginación, proyecciones.
+
+Funcionalidades adicionales
+
+Verificación de email y recuperación de contraseña.
+
+Upload de archivos con Multer o Cloudinary.
+
+Gestión avanzada de roles y permisos.
+
+Contribuciones
+
+Fork del repositorio
+
+Crear una rama: git checkout -b feature/nueva-funcionalidad
+
+Commit de tus cambios: git commit -m 'Agrega nueva funcionalidad'
+
+Push a la rama: git push origin feature/nueva-funcionalidad
+
+Abrir Pull Request
+
+Licencia
+
+Este proyecto está bajo la licencia MIT. Esto significa:
+
+Permites usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del software.
+
+El software se proporciona "tal cual", sin garantía de ningún tipo. Ni los autores ni los titulares del copyright pueden ser responsables de reclamos, daños u otras responsabilidades.
+
+Debes incluir el aviso de copyright y la licencia en todas las copias o partes sustanciales del software.
+
+Para más detalles, consulta el texto completo de la licencia: https://opensource.org/licenses/MIT.
