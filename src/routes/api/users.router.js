@@ -9,11 +9,16 @@ import {
 } from '../../controllers/users.controller.js';
 import { authJWT } from '../../middlewares/auth.js';
 import { authorize } from '../../middlewares/authorize.js';
+import { userSchema, validateBody } from '../../middlewares/validators.js';
 
 const router = Router();
 
 // Registro público
-router.post('/', registerUser);
+router.post(
+  '/',
+  validateBody(userSchema),
+  registerUser
+);
 
 // CRUD de usuarios (solo admin)
 router.get('/', authJWT, authorize('admin'), getUsers);
