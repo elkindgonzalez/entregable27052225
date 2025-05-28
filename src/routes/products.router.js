@@ -1,35 +1,43 @@
-import { Router } from 'express';
-import Product from '../models/Product.js';
+import { Router } from "express";
+import Product from "../dao/models/Product.js";     // ← ruta corregida
 
 const router = Router();
 
 // 📄 GET /api/products - Listado con paginación, filtros, ordenamiento
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { limit = 10, page = 1, sort, query } = req.query;
 
     const options = {
       page: parseInt(page),
       limit: parseInt(limit),
-      sort: sort === 'asc' ? { price: 1 } : sort === 'desc' ? { price: -1 } : undefined
+      sort:
+        sort === "asc"
+          ? { price: 1 }
+          : sort === "desc"
+          ? { price: -1 }
+          : undefined
     };
 
     const filter = query
       ? {
           $or: [
-            { category: { $regex: query, $options: 'i' } },
-            { status: query === 'true' }
+            { category: { $regex: query, $options: "i" } },
+            { status: query === "true" }
           ]
         }
       : {};
 
     const result = await Product.paginate(filter, options);
 
-    const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
-    const buildLink = (p) => `${baseUrl}?page=${p}&limit=${limit}${sort ? `&sort=${sort}` : ''}${query ? `&query=${query}` : ''}`;
+    const baseUrl = `${req.protocol}://${req.get("host")}${req.baseUrl}`;
+    const buildLink = (p) =>
+      `${baseUrl}?page=${p}&limit=${limit}${
+        sort ? `&sort=${sort}` : ""
+      }${query ? `&query=${query}` : ""}`;
 
     res.json({
-      status: 'success',
+      status: "success",
       payload: result.docs,
       totalPages: result.totalPages,
       prevPage: result.prevPage,
@@ -41,27 +49,33 @@ router.get('/', async (req, res) => {
       nextLink: result.hasNextPage ? buildLink(result.nextPage) : null
     });
   } catch (error) {
-    console.error('❌ Error en GET /products:', error);
-    res.status(500).json({ status: 'error', message: 'Error al obtener productos' });
+    console.error("❌ Error en GET /products:", error);
+    res
+      .status(500)
+      .json({ status: "error", message: "Error al obtener productos" });
   }
 });
 
 // 🔎 GET /api/products/:pid - Obtener producto por ID
-router.get('/:pid', async (req, res) => {
+router.get("/:pid", async (req, res) => {
   try {
     const product = await Product.findById(req.params.pid);
     if (!product) {
-      return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Producto no encontrado" });
     }
-    res.json({ status: 'success', product });
+    res.json({ status: "success", product });
   } catch (error) {
-    console.error('❌ Error al obtener producto:', error);
-    res.status(500).json({ status: 'error', message: 'Error al obtener producto' });
+    console.error("❌ Error al obtener producto:", error);
+    res
+      .status(500)
+      .json({ status: "error", message: "Error al obtener producto" });
   }
 });
 
 // 🆕 POST /api/products - Crear producto
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   const {
     title,
     description,
@@ -86,18 +100,17 @@ router.post('/', async (req, res) => {
     });
 
     const savedProduct = await newProduct.save();
-    res.status(201).json({ status: 'success', product: savedProduct });
+    res.status(201).json({ status: "success", product: savedProduct });
   } catch (error) {
-    console.error('❌ Error al crear producto:', error);
-    res.status(400).json({ status: 'error', message: error.message });
+    console.error("❌ Error al crear producto:", error);
+    res.status(400).json({ status: "error", message: error.message });
   }
 });
 
 // 🔁 PUT /api/products/:pid - Actualizar producto (sin modificar _id)
-router.put('/:pid', async (req, res) => {
+router.put("/:pid", async (req, res) => {
   const { pid } = req.params;
   const updateData = { ...req.body };
-
   if (updateData._id) delete updateData._id;
 
   try {
@@ -107,27 +120,33 @@ router.put('/:pid', async (req, res) => {
     });
 
     if (!updatedProduct) {
-      return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Producto no encontrado" });
     }
 
-    res.json({ status: 'success', product: updatedProduct });
+    res.json({ status: "success", product: updatedProduct });
   } catch (error) {
-    console.error('❌ Error al actualizar producto:', error);
-    res.status(400).json({ status: 'error', message: error.message });
+    console.error("❌ Error al actualizar producto:", error);
+    res.status(400).json({ status: "error", message: error.message });
   }
 });
 
 // 🗑️ DELETE /api/products/:id - Eliminar producto
-router.delete('/:id', async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const result = await Product.findByIdAndDelete(req.params.id);
     if (!result) {
-      return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Producto no encontrado" });
     }
-    res.json({ message: 'Producto eliminado correctamente' });
+    res.json({ message: "Producto eliminado correctamente" });
   } catch (error) {
-    console.error('❌ Error al eliminar producto:', error);
-    res.status(500).json({ status: 'error', message: 'Error al eliminar producto' });
+    console.error("❌ Error al eliminar producto:", error);
+    res
+      .status(500)
+      .json({ status: "error", message: "Error al eliminar producto" });
   }
 });
 

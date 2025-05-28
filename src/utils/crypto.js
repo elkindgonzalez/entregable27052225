@@ -1,10 +1,17 @@
 // src/utils/crypto.js
 import bcrypt from 'bcryptjs';
 
-/* Hashea la contraseña en texto plano */
-export const hashPassword = (plainText) =>
-  bcrypt.hashSync(plainText, bcrypt.genSaltSync(12));
+/**
+ * Cifra texto plano con bcrypt.
+ * @param {string} pwd 
+ * @returns {string} hash
+ */
+export const hashPassword = (pwd) => bcrypt.hashSync(pwd, 10);
 
-/* Compara contraseña en texto plano con el hash almacenado */
-export const checkPassword = (plainText, hashed) =>
-  bcrypt.compareSync(plainText, hashed);
+/**
+ * Compara texto plano con hash.
+ * @param {string} pwd 
+ * @param {string} hash 
+ * @returns {boolean}
+ */
+export const checkPassword = (pwd, hash) => bcrypt.compareSync(pwd, hash);

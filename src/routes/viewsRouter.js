@@ -1,7 +1,6 @@
-
 import { Router } from "express";
-import Product from "../models/Product.js";
-import Cart from "../models/Cart.js";
+import Product from "../dao/models/Product.js";
+import Cart from "../dao/models/Cart.js";
 
 const router = Router();
 
@@ -37,16 +36,16 @@ router.get("/products", async (req, res) => {
     const options = {
       page: parseInt(page),
       limit: parseInt(limit),
-      sort: sort === 'asc' ? { price: 1 } : sort === 'desc' ? { price: -1 } : undefined,
+      sort: sort === "asc" ? { price: 1 } : sort === "desc" ? { price: -1 } : undefined,
       lean: true
     };
 
     const filter = query
       ? {
           $or: [
-            { category: { $regex: query, $options: 'i' } },
-            { title: { $regex: query, $options: 'i' } },
-            { status: query === 'true' }
+            { category: { $regex: query, $options: "i" } },
+            { title: { $regex: query, $options: "i" } },
+            { status: query === "true" }
           ]
         }
       : {};
@@ -56,8 +55,11 @@ router.get("/products", async (req, res) => {
       Cart.findOne().lean()
     ]);
 
-    const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}/products`;
-    const buildLink = (p) => `${baseUrl}?page=${p}&limit=${limit}${sort ? `&sort=${sort}` : ''}${query ? `&query=${query}` : ''}`;
+    const baseUrl = `${req.protocol}://${req.get("host")}${req.baseUrl}/products`;
+    const buildLink = (p) =>
+      `${baseUrl}?page=${p}&limit=${limit}${sort ? `&sort=${sort}` : ""}${
+        query ? `&query=${query}` : ""
+      }`;
 
     res.render("products", {
       title: "Productos",
@@ -79,7 +81,9 @@ router.get("/products", async (req, res) => {
 // 🛒 Vista de carrito poblado
 router.get("/carts/:cid", async (req, res) => {
   try {
-    const cart = await Cart.findById(req.params.cid).populate("products.product").lean();
+    const cart = await Cart.findById(req.params.cid)
+      .populate("products.product")
+      .lean();
     if (!cart) {
       return res.status(404).send("Carrito no encontrado");
     }

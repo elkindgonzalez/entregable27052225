@@ -1,17 +1,15 @@
-// src/routes/api/sessions.router.js
 import { Router } from 'express';
 import passport from '../../config/passport.js';
-import { loginSuccess } from '../../controllers/sessions.controller.js';
+import { loginSuccess, currentUser } from '../../controllers/sessions.controller.js';
+import { authJWT } from '../../middlewares/auth.js';
 
 const router = Router();
 
-/* Login: POST /api/sessions/login */
-router.post(
-  '/login',
+router.post('/login',
   passport.authenticate('login', { session: false }),
   loginSuccess
 );
 
-/* El endpoint /current lo añadiremos en el siguiente paso */
+router.get('/current', authJWT, currentUser);
 
 export default router;

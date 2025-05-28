@@ -1,4 +1,4 @@
-import Product from "../models/Product.js";
+import Product from "../dao/models/Product.js";   // ← ruta corregida
 
 export function configureSockets(io) {
   io.on("connection", async (socket) => {
@@ -17,10 +17,14 @@ export function configureSockets(io) {
         const updatedProducts = await Product.find();
         io.emit("updateProducts", updatedProducts);
 
-        if (callback) callback({ status: "success", message: "Producto creado" });
+        if (callback) {
+          callback({ status: "success", message: "Producto creado" });
+        }
       } catch (err) {
         console.error("❌ Error al guardar producto vía socket:", err.message);
-        if (callback) callback({ status: "error", message: err.message });
+        if (callback) {
+          callback({ status: "error", message: err.message });
+        }
       }
     });
 
@@ -29,17 +33,23 @@ export function configureSockets(io) {
       try {
         const deleted = await Product.findByIdAndDelete(id);
         if (!deleted) {
-          if (callback) callback({ status: "error", message: "Producto no encontrado" });
+          if (callback) {
+            callback({ status: "error", message: "Producto no encontrado" });
+          }
           return;
         }
 
         const updatedProducts = await Product.find();
         io.emit("updateProducts", updatedProducts);
 
-        if (callback) callback({ status: "success", message: "Producto eliminado" });
+        if (callback) {
+          callback({ status: "success", message: "Producto eliminado" });
+        }
       } catch (err) {
         console.error("❌ Error al eliminar producto vía socket:", err.message);
-        if (callback) callback({ status: "error", message: err.message });
+        if (callback) {
+          callback({ status: "error", message: err.message });
+        }
       }
     });
   });

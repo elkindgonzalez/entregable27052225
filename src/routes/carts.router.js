@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import Cart from '../models/Cart.js';
-import Product from '../models/Product.js';
+import Cart from '../dao/models/Cart.js';       // ← ruta corregida
+import Product from '../dao/models/Product.js'; // ← ruta corregida
 
 const router = Router();
 
@@ -63,7 +63,7 @@ router.post('/:cid/products/:pid', async (req, res) => {
     await cart.save();
     res.json({ status: 'success', cart });
   } catch (err) {
-    console.error("❌ Error interno al agregar producto al carrito:", err);
+    console.error('❌ Error interno al agregar producto al carrito:', err);
     res.status(500).json({ error: 'Error al agregar producto al carrito' });
   }
 });
