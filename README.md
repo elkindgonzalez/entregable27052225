@@ -1,115 +1,124 @@
+🛍️ Ecommerce-Auth API · WebSockets • Handlebars • MongoDB • JWT
+Aplicación full-stack construida con Node.js + Express que integra:
 
-# 🛍️ WebSockets + Handlebars + MongoDB
+Persistencia en MongoDB Atlas (Mongoose)
 
-Este proyecto es una API y vista fullstack construida con Node.js, Express, MongoDB Atlas, WebSockets y Handlebars. Cumple con **todos los requisitos de la entrega final del curso de backend**.
+Vistas dinámicas con Express-Handlebars
 
----
+Actualizaciones en tiempo real mediante Socket.IO
 
-## 🚀 Tecnologías utilizadas
+CRUD de usuarios con contraseñas cifradas (bcryptjs)
 
-- Node.js + Express
-- MongoDB Atlas + Mongoose
-- WebSockets (`socket.io`)
-- Express Handlebars (templating)
-- dotenv (.env)
-- Mongoose Paginate v2
+Autenticación y autorización con Passport (Local + JWT)
 
----
+CRUD de productos y carritos con paginación
 
-## 📁 Estructura del proyecto
+🚀 Tecnologías utilizadas
+Ámbito	Paquetes / Herramientas
+Servidor	express · dotenv · nodemon
+Persistencia	mongoose · mongoose-paginate-v2
+Seguridad	passport · passport-local · passport-jwt · bcryptjs · jsonwebtoken
+Tiempo real	socket.io
+Plantillas	express-handlebars
 
-```
+📁 Estructura del proyecto
+bash
+Copiar
+Editar
 src/
-├── config/             # Conexión a MongoDB
-├── dao/                # Persistencia (FS y Mongo)
-├── models/             # Schemas Mongoose (Product, Cart)
-├── public/             # JS frontend
-├── routes/             # API y vistas
-├── sockets/            # WebSocket handlers
-├── views/              # Vistas handlebars
-├── index.js            # Entry principal
-```
-
----
-
-## 📦 Instalación
-
-```bash
-git clone https://github.com/elkindgonzalez/websockets-handlebars.git
-cd websockets-handlebars
+├─ config/          # Conexión MongoDB + configuración Passport
+├─ controllers/     # Lógica de negocio (users, sessions, products, carts)
+├─ dao/
+│  └─ models/       # Esquemas Mongoose (User, Product, Cart)
+├─ routes/
+│  ├─ api/          # Endpoints REST (/products /carts /users /sessions)
+│  └─ views/        # Rutas para vistas Handlebars
+├─ sockets/         # WebSocket handlers
+├─ utils/           # Helpers hash / compare password
+├─ views/           # Plantillas .handlebars
+└─ index.js         # Servidor HTTP + WebSocket
+📦 Instalación
+bash
+Copiar
+Editar
+git clone https://github.com/elkindgonzalez/entregable27052225.git
+cd entregable27052225
 npm install
-```
+Crear un archivo .env con:
 
-Crea un archivo `.env` con tu cadena de conexión a MongoDB:
-
-```
-MONGO_URI=mongodb+srv://<usuario>:<contraseña>@cluster.mongodb.net/websocketsDB
-```
-
----
-
-## ⚙️ Ejecutar el proyecto
-
-```bash
+ini
+Copiar
+Editar
+PORT=8080
+MONGO_URI=mongodb+srv://<usuario>:<contraseña>@cluster.mongodb.net/ecommerce
+JWT_SECRET=clave_ultra_secreta
+▶️ Ejecución
+bash
+Copiar
+Editar
 npm run dev
-```
+Servidor en http://localhost:8080
 
-Servidor en: [http://localhost:8080](http://localhost:8080)
+🔐 Autenticación y autorización
+Endpoint	Método	Descripción	Acceso
+/api/users	POST	Registro de usuario (password hash)	Público
+/api/sessions/login	POST	Login (Passport Local) → devuelve JWT	Público
+/api/sessions/current	GET	Datos del usuario autenticado (JWT)	Header Authorization: Bearer <token>
 
----
+El JWT incluye sub (ID) y role; expira en 2 h.
 
-## 📡 WebSockets en acción
+🔌 Endpoints REST (resumen)
+Productos /api/products
+GET / • GET /:pid • POST / • PUT /:pid • DELETE /:pid
 
-- Vista `/realtimeproducts` con formulario para agregar y eliminar productos.
-- Las actualizaciones se transmiten en tiempo real a todos los clientes conectados.
+Carritos /api/carts
+POST / • GET /:cid • PUT /:cid • DELETE /:cid
+POST /:cid/products/:pid • PUT /:cid/products/:pid • DELETE /:cid/products/:pid
 
----
+Usuarios /api/users (rol admin)
+GET / • GET /:uid • PUT /:uid • DELETE /:uid
 
-## 🔌 Endpoints REST
+🌐 Vistas Handlebars
+Ruta	Descripción
+/products	Lista paginada con botón «Agregar al carrito»
+/carts/:cid	Detalle de carrito con productos poblados
+/realtimeproducts	Alta/baja de productos en tiempo real (WebSocket)
 
-### Productos `/api/products`
-- `GET /` → Listado paginado, con filtros y ordenamiento
-- `GET /:pid` → Obtener un producto por ID
-- `POST /` → Crear nuevo producto
-- `PUT /:pid` → Editar producto
-- `DELETE /:pid` → Eliminar producto
+📡 WebSockets en acción
+Vista /realtimeproducts con formulario para agregar y eliminar productos.
 
-### Carritos `/api/carts`
-- `POST /` → Crear carrito
-- `GET /:cid` → Obtener carrito con `populate`
-- `POST /:cid/products/:pid` → Agregar producto
-- `PUT /:cid` → Reemplazar productos del carrito
-- `PUT /:cid/products/:pid` → Modificar cantidad
-- `DELETE /:cid/products/:pid` → Quitar un producto
-- `DELETE /:cid` → Vaciar el carrito
+Las actualizaciones se transmiten en tiempo real a todos los clientes mediante Socket.IO.
 
----
+🧪 Prueba rápida
+bash
+Copiar
+Editar
+# 1 – Registrar usuario
+curl -X POST http://localhost:8080/api/users \
+ -H 'Content-Type: application/json' \
+ -d '{"first_name":"Ana","last_name":"Lopez","email":"ana@test.com","age":30,"password":"1234"}'
 
-## 🖥️ Vistas dinámicas
+# 2 – Login
+TOKEN=$(curl -s -X POST http://localhost:8080/api/sessions/login \
+ -H 'Content-Type: application/json' \
+ -d '{"email":"ana@test.com","password":"1234"}' | jq -r .token)
 
-- `/products` → Lista de productos paginada + botón para agregar al carrito
-- `/carts/:cid` → Visualización del carrito con productos poblados
-- `/realtimeproducts` → Productos en tiempo real con WebSocket
+# 3 – Ruta protegida
+curl http://localhost:8080/api/sessions/current \
+ -H "Authorization: Bearer $TOKEN"
+✅ Estado del proyecto
+CRUD de productos y carritos ✔️
 
----
+CRUD de usuarios con contraseñas cifradas ✔️
 
-## 📷 Captura de pantalla (opcional)
+Passport Local + JWT ✔️
 
-Puedes incluir una imagen de tu interfaz en esta sección.
+Middleware de roles ✔️
 
----
+WebSockets y vistas activas ✔️
 
-## ✅ Estado del proyecto
+Listo para entrega académica final ✔️
 
-- ✔️ Funcionalidad completa implementada
-- ✔️ Validación de productos y carritos
-- ✔️ MongoDB como persistencia
-- ✔️ WebSockets activos
-- ✔️ Listo para entrega académica final
-
----
-
-## ✍️ Autor
-
-**Elkin Gonzalez**  
-Repositorio: [github.com/elkindgonzalez/websockets-handlebars](https://github.com/elkindgonzalez/websockets-handlebars)
+✍️ Autor
+Elkin González
+https://github.com/elkindgonzalez/entregable27052225
