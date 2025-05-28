@@ -1,204 +1,162 @@
-API Backend de Ecommerce con Node.js, Express, MongoDB, Handlebars y Socket.IO
+# 🚀 API Backend de Ecommerce con Node.js, Express, MongoDB, Handlebars y Socket.IO
 
-Proyecto backend con Node.js, Express, MongoDB, Handlebars y Socket.IO para la gestión de usuarios y productos en tiempo real.
+---
 
-Tabla de contenidos
+## 📋 Tabla de contenidos
 
-Descripción
+* [📖 Descripción](#-descripción)
+* [🛠 Tecnologías](#-tecnologías)
+* [⚙️ Instalación](#️-instalación)
+* [🔧 Configuración](#-configuración)
+* [📦 Scripts disponibles](#-scripts-disponibles)
+* [📁 Estructura](#-estructura)
+* [🚀 Endpoints](#-endpoints)
+* [💬 WebSockets](#-websockets)
+* [✅ Funcionalidades implementadas](#-funcionalidades-implementadas)
+* [✨ Mejoras sugeridas](#-mejoras-sugeridas)
+* [🤝 Contribuciones](#-contribuciones)
+* [📄 Licencia](#-licencia)
 
-Tecnologías
+---
 
-Instalación
+## 📖 Descripción
 
-Configuración
+Este proyecto es un **API Backend** para un Ecommerce, que incluye:
 
-Scripts disponibles
+* 🔐 Autenticación y autorización de usuarios con Passport (Local + JWT).
+* 📋 CRUD completo de usuarios con roles y permisos.
+* 🔍 Validaciones de entrada con Joi.
+* 🗄 Persistencia en MongoDB usando Mongoose.
+* 🔄 Comunicación en tiempo real de productos con Socket.IO.
+* 🖥 Renderizado de vistas con Handlebars (opcional para front-end).
 
-Estructura del proyecto
+---
 
-Endpoints
+## 🛠 Tecnologías
 
-WebSockets
+---
 
-Funcionalidades implementadas
+## ⚙️ Instalación
 
-Mejoras sugeridas
+1. Clonar el repositorio:
 
-Contribuciones
+   ```bash
+   git clone https://github.com/elkindgonzalez/entregable27052225.git
+   cd entregable27052225
+   ```
+2. Instalar dependencias:
 
-Licencia
+   ```bash
+   npm install
+   ```
 
-Descripción
+---
 
-Este proyecto implementa un servidor backend que proporciona:
+## 🔧 Configuración
 
-Autenticación y autorización de usuarios con Passport (Local + JWT).
+1. Crear un archivo `.env` con:
 
-CRUD completo de usuarios con roles y permisos.
+   ```ini
+   MONGO_URI=<tu_mongodb_uri>
+   JWT_SECRET=<tu_secreto_jwt>
+   PORT=8080
+   ```
+2. Ajusta valores según tu entorno.
 
-Validaciones de entrada con Joi.
+---
 
-Persistencia en MongoDB usando Mongoose.
+## 📦 Scripts disponibles
 
-Comunicación en tiempo real de productos con Socket.IO.
+| Script        | Descripción                        |
+| ------------- | ---------------------------------- |
+| `npm run dev` | Inicia servidor con Nodemon        |
+| `npm start`   | Inicia servidor en producción      |
+| `npm test`    | Ejecuta tests con Jest (si aplica) |
 
-Renderizado de vistas con Handlebars (opcional para front-end).
+---
 
-Tecnologías
+## 📁 Estructura
 
-Node.js
-
-Express
-
-MongoDB & Mongoose
-
-Passport.js (Local, JWT)
-
-Bcrypt
-
-Joi
-
-Socket.IO
-
-Handlebars
-
-Nodemon
-
-Instalación
-
-Clonar el repositorio:
-
-git clone <repo-url>
-cd entregable27052225
-
-Instalar dependencias:
-
-npm install
-
-Configuración
-
-Crear un archivo .env en la raíz con las siguientes variables:
-
-MONGO_URI=<tu_uri_mongodb>
-JWT_SECRET=<tu_secreto_jwt>
-PORT=8080
-
-Ajustar valores según tu entorno.
-
-Scripts disponibles
-
-En el package.json encontrarás:
-
-npm run dev – Inicia el servidor en modo desarrollo con Nodemon.
-
-npm start – Inicia el servidor en modo producción.
-
-npm test – Ejecuta tests con Jest y Supertest (si se implementa).
-
-Estructura del proyecto
-
+```bash
 src/
-├── config/       # Configuraciones (e.g., logger)
-├── controllers/  # Lógica de controladores
-├── dao/          # Data access objects y modelos Mongoose
-├── middlewares/  # Middlewares (auth, validation, errors)
-├── routes/       # Definición de rutas
-├── services/     # Lógica de negocio adicional
-├── utils/        # Utilidades y helpers
-└── index.js      # Punto de entrada
+├── config/        # Configuración (logger, etc.)
+├── controllers/   # Lógica de controladores
+├── dao/           # Modelos Mongoose y DAOs
+├── middlewares/   # Middlewares (auth, validation)
+├── routes/        # Rutas Express
+├── services/      # Lógica de negocio
+├── utils/         # Utilidades y helpers
+└── index.js       # Punto de entrada
+```
 
-Endpoints
+---
 
-Autenticación
+## 🚀 Endpoints
 
-POST /api/users – Registro de usuario (público). Validaciones aplicadas.
+### 📌 Autenticación
 
-POST /api/sessions/login – Login: recibe email y password, devuelve JWT.
+| Método | Ruta                    | Descripción                  |
+| ------ | ----------------------- | ---------------------------- |
+| `POST` | `/api/users`            | Registro público de usuarios |
+| `POST` | `/api/sessions/login`   | Login: recibe email y pass   |
+| `GET`  | `/api/sessions/current` | Info del usuario autenticado |
 
-GET /api/sessions/current – Obtiene info del usuario autenticado (JWT).
+### 👥 Usuarios (Admin)
 
-Usuarios (admin)
+| Método   | Ruta              | Descripción            |
+| -------- | ----------------- | ---------------------- |
+| `GET`    | `/api/users`      | Listar usuarios        |
+| `GET`    | `/api/users/:uid` | Obtener usuario por ID |
+| `PUT`    | `/api/users/:uid` | Actualizar usuario     |
+| `DELETE` | `/api/users/:uid` | Eliminar usuario       |
 
-GET /api/users – Listar todos los usuarios.
+---
 
-GET /api/users/:uid – Obtener usuario por ID.
+## 💬 WebSockets
 
-PUT /api/users/:uid – Actualizar usuario.
+* Conectar cliente: `<script>const socket = io();</script>`
+* Eventos:
 
-DELETE /api/users/:uid – Eliminar usuario.
+  * 🔹 `addProduct` ➔ agrega producto
+  * 🔹 `updateProduct` ➔ actualiza producto
+  * 🔹 `deleteProduct` ➔ elimina producto
+  * 🔹 `productList` ➔ emite lista actualizada
 
-WebSockets
+---
 
-Conexión en cliente: io.connect('<server>').
+## ✅ Funcionalidades implementadas
 
-Eventos disponibles:
+* ✔️ **Modelo User**: `first_name`, `last_name`, `email` (único), `age`, `password` (hash), `cart`, `role`.
+* ✔️ **Encriptación**: bcrypt.
+* ✔️ **Passport**: Local & JWT.
+* ✔️ **Validaciones**: Joi.
+* ✔️ **Protección**: `authJWT` + `authorize('admin')`.
+* ✔️ **CRUD Usuarios**.
+* ✔️ **WebSockets**: productos en tiempo real.
 
-addProduct: envía datos para agregar nuevo producto.
+---
 
-updateProduct: envía cambios de producto existente.
+## ✨ Mejoras sugeridas
 
-deleteProduct: envía ID para eliminar producto.
+* 🧪 **Tests**: Jest + Supertest con MongoDB en memoria.
+* 🛡 **Errores & Logs**: Middleware global + Winston/Pino.
+* ⚡ **Optimización BD**: Índices, paginación, proyecciones.
+* 📧 **Extras**: Verificación de email, recuperación de contraseña.
+* 📁 **Uploads**: Multer o Cloudinary.
 
-productList: el servidor emite lista actualizada a todos.
+---
 
-Funcionalidades implementadas
+## 🤝 Contribuciones
 
-✔️ Modelo User con campos: first_name, last_name, email (único), age, password (hash), cart (ref), role (user por defecto).
+1. Haz **fork** del repositorio
+2. Crea una rama: `git checkout -b feature/nombre`
+3. Haz tus cambios y **commit**: `git commit -m "Agrega nueva funcionalidad"`
+4. Haz **push**: `git push origin feature/nombre`
+5. Abre un **Pull Request**
 
-✔️ Encriptación de contraseñas con bcrypt.
+---
 
-✔️ Passport Local y JWT para autenticación.
+## 📄 Licencia
 
-✔️ Rutas protegidas con middlewares authJWT y authorize('admin').
-
-✔️ CRUD completo de usuarios.
-
-✔️ Validaciones de entrada usando Joi.
-
-✔️ WebSockets para productos en tiempo real.
-
-Mejoras sugeridas
-
-Tests automáticos
-
-Configurar Jest + Supertest con MongoDB en memoria.
-
-Manejo centralizado de errores
-
-Middleware global y logging con Winston o Pino.
-
-Optimización de MongoDB
-
-Índices, paginación, proyecciones.
-
-Funcionalidades adicionales
-
-Verificación de email y recuperación de contraseña.
-
-Upload de archivos con Multer o Cloudinary.
-
-Gestión avanzada de roles y permisos.
-
-Contribuciones
-
-Fork del repositorio
-
-Crear una rama: git checkout -b feature/nueva-funcionalidad
-
-Commit de tus cambios: git commit -m 'Agrega nueva funcionalidad'
-
-Push a la rama: git push origin feature/nueva-funcionalidad
-
-Abrir Pull Request
-
-Licencia
-
-Este proyecto está bajo la licencia MIT. Esto significa:
-
-Permites usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del software.
-
-El software se proporciona "tal cual", sin garantía de ningún tipo. Ni los autores ni los titulares del copyright pueden ser responsables de reclamos, daños u otras responsabilidades.
-
-Debes incluir el aviso de copyright y la licencia en todas las copias o partes sustanciales del software.
-
-Para más detalles, consulta el texto completo de la licencia: https://opensource.org/licenses/MIT.
+Este proyecto está bajo la **MIT License**. Para más detalles:
+[MIT](https://opensource.org/licenses/MIT)
