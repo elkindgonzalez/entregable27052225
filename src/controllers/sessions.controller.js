@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 import { UserModel } from '../dao/models/user.model.js';
 import { sendEmail } from '../utils/mailer.js';
 import { hashPassword } from '../utils/crypto.js';
@@ -72,6 +73,12 @@ export const resetPassword = async (req, res) => {
 
   if (!user) {
     return res.status(400).json({ error: 'Token inválido o expirado' });
+  }
+
+  // Verificar que la nueva contraseña no sea igual a la anterior
+  const isSamePassword = await bcrypt.compare(newPassword, user.password);
+  if (isSamePassword) {
+    return res.status(400).json({ error: 'La nueva contraseña no puede ser igual a la anterior' });
   }
 
   user.password = hashPassword(newPassword);

@@ -1,5 +1,5 @@
-// src/dao/models/user.model.js
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
 const userSchema = new mongoose.Schema(
   {
@@ -17,5 +17,18 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// 🔐 Hasheo automático de la contraseña antes de guardar
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  try {
+    const saltRounds = 10;
+    this.password = await bcrypt.hash(this.password, saltRounds);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 export const UserModel = mongoose.model('Users', userSchema);
