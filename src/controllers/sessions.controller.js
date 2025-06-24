@@ -1,13 +1,18 @@
-// src/controllers/sessions.controller.js
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
+import { UserModel } from '../dao/models/user.model.js';
+import { sendEmail } from '../utils/mailer.js';
+import { hashPassword } from '../utils/crypto.js';
+import UserDTO from '../dto/UserDTO.js';
+
 dotenv.config();
 
-/* POST /api/sessions/login  ───────────
-   Passport-local pone el usuario verificado en req.user.
-   Generamos y devolvemos un token JWT. */
+/**
+ * POST /api/sessions/login
+ */
 export const loginSuccess = (req, res) => {
-  const user = req.user;                           // { _id, role, ... }
+  const user = req.user;
 
   const token = jwt.sign(
     { sub: user._id, role: user.role },
@@ -18,10 +23,61 @@ export const loginSuccess = (req, res) => {
   res.json({ message: 'Login exitoso', token });
 };
 
-/* GET /api/sessions/current  ──────────
-   authJWT añade req.user a la request.
-   Devolvemos los datos básicos del usuario autenticado. */
+/**
+ * GET /api/sessions/current
+ */
 export const currentUser = (req, res) => {
-  const { _id, first_name, last_name, email, role } = req.user;
-  res.json({ _id, first_name, last_name, email, role });
+  const safeUser = new UserDTO(req.user);
+  res.json({ user: safeUser });
+};
+
+/**
+ * POST /api/sessions/forgot-password
+ */
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await UserModel.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ error: 'Usuario no encontrado' });
+  }
+
+  const token = crypto.randomBytes(20).toString('hex');
+  const expires = Date.now() + 3600000; // 1 hora
+
+  user.resetToken = token;
+  user.resetTokenExp = expires;
+  await user.save();
+
+  const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
+  await sendEmail(
+    user.email,
+    'Recuperación de contraseña',
+    `Haz clic para restablecer tu contraseña: <a href="${resetLink}">${resetLink}</a>`
+  );
+
+  res.json({ message: 'Correo de recuperación enviado' });
+};
+
+/**
+ * POST /api/sessions/reset-password
+ */
+export const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  const user = await UserModel.findOne({
+    resetToken: token,
+    resetTokenExp: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    return res.status(400).json({ error: 'Token inválido o expirado' });
+  }
+
+  user.password = hashPassword(newPassword);
+  user.resetToken = undefined;
+  user.resetTokenExp = undefined;
+  await user.save();
+
+  res.json({ message: 'Contraseña actualizada correctamente' });
 };

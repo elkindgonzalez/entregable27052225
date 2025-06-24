@@ -1,5 +1,5 @@
 import BaseRepository from './BaseRepository.js';
-import UserModel from '../dao/models/User.js'; // ajusta la ruta si es diferente
+import { UserModel } from '../dao/models/user.model.js';
 
 class UserRepository extends BaseRepository {
   constructor() {

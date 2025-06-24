@@ -1,4 +1,4 @@
-// src/middlewares/validators.js (o .mjs)
+// src/middlewares/validators.js
 import Joi from 'joi';
 
 // Esquema de validación para creación y actualización de usuarios
@@ -7,7 +7,8 @@ export const userSchema = Joi.object({
   last_name:  Joi.string().min(2).required(),
   email:      Joi.string().email().required(),
   age:        Joi.number().integer().min(0).required(),
-  password:   Joi.string().min(6).required()
+  password:   Joi.string().min(6).required(),
+  role:       Joi.string().valid('user', 'admin').optional()  // ← Ahora permitido
 });
 
 // Función genérica que recibe un esquema Joi
