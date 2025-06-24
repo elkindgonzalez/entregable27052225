@@ -1,7 +1,4 @@
-// src/controllers/users.controller.js
-
-import { UserModel } from '../dao/models/user.model.js';
-import { hashPassword } from '../utils/crypto.js';
+import UserService from '../services/UserService.js';
 
 /**
  * POST /api/users
@@ -9,30 +6,14 @@ import { hashPassword } from '../utils/crypto.js';
  */
 export const registerUser = async (req, res) => {
   try {
-    const { first_name, last_name, email, age, password } = req.body;
-
-    // Evitar emails duplicados
-    if (await UserModel.findOne({ email })) {
-      return res.status(400).json({ error: 'Email ya registrado' });
-    }
-
-    // Cifrar contraseña y crear usuario
-    const newUser = await UserModel.create({
-      first_name,
-      last_name,
-      email,
-      age,
-      password: hashPassword(password),
-      role: 'user'
-    });
-
+    const newUser = await UserService.registerUser(req.body);
     return res.status(201).json({
       message: 'Usuario creado',
       payload: { _id: newUser._id, email: newUser.email }
     });
   } catch (err) {
     console.error('❌ Error en registerUser:', err);
-    return res.status(500).json({ error: 'Error interno al registrar usuario' });
+    return res.status(400).json({ error: err.message });
   }
 };
 
@@ -40,9 +21,9 @@ export const registerUser = async (req, res) => {
  * GET /api/users   (admin)
  * Lista todos los usuarios, sin exponer su contraseña.
  */
-export const getUsers = async (req, res) => {
+export const getUsers = async (_req, res) => {
   try {
-    const users = await UserModel.find().select('-password').lean();
+    const users = await UserService.getAllUsers();
     return res.json({ users });
   } catch (err) {
     console.error('❌ Error en getUsers:', err);
@@ -56,7 +37,7 @@ export const getUsers = async (req, res) => {
  */
 export const getUserById = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.params.uid).select('-password').lean();
+    const user = await UserService.getUserById(req.params.uid);
     if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
@@ -73,18 +54,7 @@ export const getUserById = async (req, res) => {
  */
 export const updateUser = async (req, res) => {
   try {
-    const updates = { ...req.body };
-    if (updates.password) {
-      updates.password = hashPassword(updates.password);
-    }
-    const updated = await UserModel.findByIdAndUpdate(
-      req.params.uid,
-      updates,
-      { new: true, runValidators: true }
-    )
-      .select('-password')
-      .lean();
-
+    const updated = await UserService.updateUser(req.params.uid, req.body);
     if (!updated) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
@@ -101,7 +71,7 @@ export const updateUser = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
   try {
-    const deleted = await UserModel.findByIdAndDelete(req.params.uid);
+    const deleted = await UserService.deleteUser(req.params.uid);
     if (!deleted) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
