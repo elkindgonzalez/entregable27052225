@@ -17,7 +17,7 @@ const ticketSchema = new mongoose.Schema(
     },
     purchaser: {
       type: String,
-      required: true // Puede ser el email del usuario
+      required: true // email del comprador
     }
   },
   { timestamps: true }

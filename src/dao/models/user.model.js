@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
     password:   { type: String, required: true },
     cart:       { type: mongoose.Schema.Types.ObjectId, ref: 'Carts' },
     role:       { type: String, default: 'user', enum: ['user', 'admin'] },
+    permissions: { type: [String], default: [] }, // ✅ Este es el nuevo campo
 
     // 🔐 Campos para recuperación de contraseña
     resetToken:    { type: String },

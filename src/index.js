@@ -8,13 +8,15 @@ import dotenv from "dotenv";
 
 import connectDB from "./config/db.js";
 import passport from "./config/passport.js";                       // ➜ Passport
+import { errorHandler } from "./middlewares/errorHandler.js";      // ➜ Middleware de errores
 
 /* ---------- Routers ---------- */
 import viewsRouter from "./routes/viewsRouter.js";
 import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/carts.router.js";
-import usersRouter from "./routes/api/users.router.js";            // ➜ Nuevo
-import sessionsRouter from "./routes/api/sessions.router.js";      // ➜ Nuevo
+import usersRouter from "./routes/api/users.router.js";            // ➜ CRUD de usuarios
+import sessionsRouter from "./routes/api/sessions.router.js";      // ➜ Login + /current
+import mocksRouter from "./routes/api/mocks.router.js";            // ✅ Mocking router
 
 import { configureSockets } from "./sockets/socketHandler.js";
 
@@ -45,6 +47,10 @@ app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/api/users", usersRouter);          // ➜ CRUD de usuarios
 app.use("/api/sessions", sessionsRouter);    // ➜ Login + /current
+app.use("/api/mocks", mocksRouter);          // ✅ Mocking endpoints
+
+/* ---------- Middleware Global de Errores ---------- */
+app.use(errorHandler);
 
 /* ---------- Servidor HTTP & WebSocket ---------- */
 const server = app.listen(PORT, () => {

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import Cart from '../dao/models/Cart.js';
 import Product from '../dao/models/Product.js';
-import { auth } from '../middlewares/auth.js';
+import { auth } from '../middlewares/auth.js'; // ✅ Importación corregida
 import { authorize } from '../middlewares/authorize.js';
 
 const router = Router();
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 🆕 Crear carrito vacío (opcionalmente protegido)
+// 🆕 Crear carrito vacío
 router.post('/', async (req, res) => {
   try {
     const newCart = new Cart({ products: [] });
@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// 🔍 Obtener carrito por ID con productos
+// 🔍 Obtener carrito por ID
 router.get('/:cid', async (req, res) => {
   try {
     const cart = await Cart.findById(req.params.cid).populate('products.product');

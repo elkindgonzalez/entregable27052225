@@ -7,7 +7,7 @@ import {
   updateUser,
   deleteUser
 } from '../../controllers/users.controller.js';
-import { authJWT } from '../../middlewares/auth.js';
+import { auth } from '../../middlewares/auth.js'; // 🔁 Corregido
 import { authorize } from '../../middlewares/authorize.js';
 import { userSchema, validateBody } from '../../middlewares/validators.js';
 
@@ -21,9 +21,9 @@ router.post(
 );
 
 // CRUD de usuarios (solo admin)
-router.get('/', authJWT, authorize('admin'), getUsers);
-router.get('/:uid', authJWT, authorize('admin'), getUserById);
-router.put('/:uid', authJWT, authorize('admin'), updateUser);
-router.delete('/:uid', authJWT, authorize('admin'), deleteUser);
+router.get('/', auth, authorize('admin'), getUsers);
+router.get('/:uid', auth, authorize('admin'), getUserById);
+router.put('/:uid', auth, authorize('admin'), updateUser);
+router.delete('/:uid', auth, authorize('admin'), deleteUser);
 
 export default router;

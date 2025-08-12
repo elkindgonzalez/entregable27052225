@@ -6,7 +6,7 @@ import {
   forgotPassword,
   resetPassword
 } from '../../controllers/sessions.controller.js';
-import { authJWT } from '../../middlewares/auth.js';
+import { auth } from '../../middlewares/auth.js'; // ✅ Corregido
 
 const router = Router();
 
@@ -15,7 +15,7 @@ router.post('/login',
   loginSuccess
 );
 
-router.get('/current', authJWT, currentUser);
+router.get('/current', auth, currentUser); // ✅ Corregido
 
 // Ruta para solicitar recuperación de contraseña
 router.post('/forgot-password', forgotPassword);
